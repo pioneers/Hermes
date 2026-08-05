@@ -13,15 +13,17 @@ raspi_ip = "192.168.0." + last_three
 
 times = []
 time_between_packets = 0.1 # time between packets in seconds
-packet_size = 20 # packet size in bytes
+packet_size = 100 # packet size in bytes
 packet_count = 0
 connection_good = True
+timeout = 30
 
 while True:
     sleep(time_between_packets)
     message = str(packet_size)
 
     client = socket.socket()
+    client.settimeout(timeout)
 
     sendtime = time()
 
@@ -32,6 +34,13 @@ while True:
         terminal_dims = get_terminal_size()
         print("\n" * (terminal_dims[1] // 2))
         print("Connection dropped!")
+        print("\n" * (terminal_dims[1] // 2 - 1 + (terminal_dims[1] % 2)))
+        continue
+    except TimeoutError:
+        connection_good = False
+        terminal_dims = get_terminal_size()
+        print("\n" * (terminal_dims[1] // 2))
+        print("Connection timed out!")
         print("\n" * (terminal_dims[1] // 2 - 1 + (terminal_dims[1] % 2)))
         continue
     client.send(message.encode())
